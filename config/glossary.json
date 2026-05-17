@@ -1,0 +1,43 @@
+{
+  "metrics": {
+    "churn_rate": {
+      "definition": "Percentage of users who stopped purchasing within a given period",
+      "sql_formula": "(COUNT(DISTINCT churned_users) * 100.0 / COUNT(DISTINCT total_users))",
+      "notes": "A user is considered churned if they have no orders in the last 30 days after their first purchase"
+    },
+    "ROI": {
+      "definition": "Return on investment for a campaign",
+      "sql_formula": "((SUM(sale_price) - SUM(cost)) / SUM(cost)) * 100",
+      "notes": "sale_price and cost come from the order_items table"
+    },
+    "AOV": {
+      "definition": "Average Order Value",
+      "sql_formula": "SUM(sale_price) / COUNT(DISTINCT order_id)",
+      "notes": "Only count completed orders (status = 'Complete')"
+    },
+    "conversion_rate": {
+      "definition": "Percentage of users who made a purchase after visiting",
+      "sql_formula": "(COUNT(DISTINCT purchasing_users) * 100.0 / COUNT(DISTINCT visiting_users))",
+      "notes": "visiting_users come from the events table, purchasing_users from orders"
+    }
+  },
+  "time_periods": {
+    "last_month": "DATE between the first and last day of the previous calendar month",
+    "last_quarter": "DATE between the first day of 3 months ago and the last day of last month",
+    "last_7_days": "DATE >= CURRENT_DATE - 7",
+    "last_30_days": "DATE >= CURRENT_DATE - 30",
+    "ytd": "DATE >= DATE(CURRENT_DATE, 'start of year')"
+  },
+  "campaign_types": {
+    "new_campaign": "Events or orders where traffic_source IS NOT NULL, filtered to the target time period",
+    "organic": "traffic_source = 'Organic'",
+    "email": "traffic_source = 'Email'",
+    "search": "traffic_source = 'Search'",
+    "social": "traffic_source = 'Facebook' OR traffic_source = 'Adwords'"
+  },
+  "user_segments": {
+    "new_user": "Users whose first order is within the target time period",
+    "returning_user": "Users who have more than 1 order total",
+    "churned_user": "Users with no orders in the last 30 days after being active"
+  }
+}

@@ -1,0 +1,124 @@
+{
+  "test_cases": [
+    {
+      "question": "What was the total revenue last month?",
+      "ground_truth": "A specific dollar amount from the order_items table for last month's completed orders",
+      "category": "sql",
+      "expected_metrics": ["revenue"]
+    },
+    {
+      "question": "What is the ROI for email campaigns last month?",
+      "ground_truth": "ROI percentage calculated as (revenue - cost) / cost * 100 for email traffic source",
+      "category": "sql",
+      "expected_metrics": ["ROI"]
+    },
+    {
+      "question": "How many new users did we acquire last month?",
+      "ground_truth": "Count of users whose first order was placed last month",
+      "category": "sql",
+      "expected_metrics": ["new_users"]
+    },
+    {
+      "question": "What is the churn rate for organic search users?",
+      "ground_truth": "Percentage of organic users who cancelled orders",
+      "category": "sql",
+      "expected_metrics": ["churn_rate"]
+    },
+    {
+      "question": "Which product category has the highest AOV?",
+      "ground_truth": "Product category with highest average order value from order_items joined with products",
+      "category": "sql",
+      "expected_metrics": ["AOV"]
+    },
+    {
+      "question": "What is the conversion rate by traffic source?",
+      "ground_truth": "Ratio of users who purchased vs users who visited, grouped by traffic_source",
+      "category": "sql",
+      "expected_metrics": ["conversion_rate"]
+    },
+    {
+      "question": "What are the top 5 products by revenue last quarter?",
+      "ground_truth": "Top 5 products ranked by sum of sale_price in the last quarter",
+      "category": "sql",
+      "expected_metrics": ["revenue"]
+    },
+    {
+      "question": "How many orders were returned last month?",
+      "ground_truth": "Count of orders with status = 'Returned' in last month",
+      "category": "sql",
+      "expected_metrics": ["returns"]
+    },
+    {
+      "question": "What is the average delivery time for completed orders?",
+      "ground_truth": "Average days between order creation and delivery for status = 'Complete'",
+      "category": "sql",
+      "expected_metrics": ["delivery_time"]
+    },
+    {
+      "question": "What percentage of revenue comes from returning customers?",
+      "ground_truth": "Revenue from users with more than 1 order divided by total revenue",
+      "category": "sql",
+      "expected_metrics": ["revenue", "returning_customers"]
+    },
+    {
+      "question": "What is the average ecommerce churn rate industry benchmark?",
+      "ground_truth": "Industry average ecommerce churn rate (typically 70-80% annual for subscription, lower for transactional)",
+      "category": "rag",
+      "expected_metrics": ["churn_rate"]
+    },
+    {
+      "question": "What ROI should we expect from email marketing campaigns?",
+      "ground_truth": "Industry average email marketing ROI benchmark from reports",
+      "category": "rag",
+      "expected_metrics": ["ROI"]
+    },
+    {
+      "question": "What are industry best practices for reducing cart abandonment?",
+      "ground_truth": "Best practices from industry reports including retargeting, email reminders, simplified checkout",
+      "category": "rag",
+      "expected_metrics": []
+    },
+    {
+      "question": "What is a good conversion rate for fashion ecommerce?",
+      "ground_truth": "Fashion ecommerce conversion rate benchmarks from industry reports (typically 1-3%)",
+      "category": "rag",
+      "expected_metrics": ["conversion_rate"]
+    },
+    {
+      "question": "How do top ecommerce companies reduce customer acquisition cost?",
+      "ground_truth": "Strategies from industry reports: referral programs, organic content, loyalty programs",
+      "category": "rag",
+      "expected_metrics": []
+    },
+    {
+      "question": "What is the average AOV for fashion ecommerce globally?",
+      "ground_truth": "Global fashion ecommerce AOV benchmarks from industry reports",
+      "category": "rag",
+      "expected_metrics": ["AOV"]
+    },
+    {
+      "question": "What are common causes of high churn in ecommerce?",
+      "ground_truth": "Poor delivery experience, lack of personalisation, pricing, competitor offers per industry reports",
+      "category": "rag",
+      "expected_metrics": ["churn_rate"]
+    },
+    {
+      "question": "How does mobile vs desktop conversion rate compare in fashion retail?",
+      "ground_truth": "Mobile vs desktop conversion benchmarks from industry reports",
+      "category": "rag",
+      "expected_metrics": ["conversion_rate"]
+    },
+    {
+      "question": "What loyalty program structures drive the highest retention?",
+      "ground_truth": "Loyalty program best practices from industry reports: tiered systems, points, early access",
+      "category": "rag",
+      "expected_metrics": []
+    },
+    {
+      "question": "What is the typical return rate for fashion ecommerce?",
+      "ground_truth": "Fashion ecommerce return rate benchmarks (typically 20-30%) from industry reports",
+      "category": "rag",
+      "expected_metrics": ["returns"]
+    }
+  ]
+}
