@@ -136,3 +136,9 @@ build/
 
 # Exclude generated figures
 figures/
+
+# Exclude pickles
+*.pkl
+
+# Exclude chromadb
+chroma_db/

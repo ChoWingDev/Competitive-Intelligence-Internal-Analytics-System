@@ -126,11 +126,12 @@ def create_vectorstore(documents):
             meta.update({
                 "parent_index": idx,
                 # keep original source if present
-                "source": parent.metadata.get("source") if parent.metadata else None,
+                "source": meta.get("source"),
                 # keep parent element_type if present
-                "parent_element_type": parent.metadata.get("element_type") if parent.metadata else None,
-                # keep parent industry if present (default to "ecommerce")
-                "industry": parent.metadata.get("industry") if parent.metadata else "ecommerce"
+                "page": meta.get("page"),
+                # keep parent industry
+                "industry": meta.get("industry", "ecommerce"),
+                "chunk_type": "child"
             })
 
             new_child = Document(
@@ -142,7 +143,7 @@ def create_vectorstore(documents):
     print(f"Created {len(child_docs)} child chunks (final units to embed)")
 
     # Initialize embeddings 
-    embeddings = OpenAIEmbeddings(model="text-embedding-3-large")
+    embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 
     # Create Chroma vector store from child chunks.
     # Chroma stores dense vectors and associated metadata on disk,
@@ -155,7 +156,7 @@ def create_vectorstore(documents):
         persist_directory="./chroma_db"
     )
 
-    print("Two-level vector store created successfully!")
+    print("Two-level vector store created")
     return vectorstore
 
 # Run it if executed as a script
@@ -171,4 +172,4 @@ if __name__ == "__main__":
     else:
         # Test only the vectorstore part
         vectorstore = create_vectorstore(docs)
-        print("\nVector store creation completed!")
+        print("\nVector store creation completed")
