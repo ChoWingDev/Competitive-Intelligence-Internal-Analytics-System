@@ -41,6 +41,7 @@ distro==1.9.0
 docstring-parser==0.18.0
 durationpy==0.10
 emoji==2.15.0
+en-core-web-sm==3.8.0
 executing==2.2.1
 filelock==3.29.0
 filetype==1.2.0
@@ -161,6 +162,7 @@ pydantic-core==2.46.4
 pydantic-settings==2.14.1
 pydeck==0.9.2
 pygments==2.20.0
+pymupdf==1.27.2.3
 pyparsing==3.3.2
 pypdf==6.11.0
 pypdfium2==5.8.0

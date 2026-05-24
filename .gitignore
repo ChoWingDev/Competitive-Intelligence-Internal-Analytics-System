@@ -133,3 +133,12 @@ build/
 
 # Optional: keep example env file tracked
 !.env.example
+
+# Exclude generated figures
+figures/
+
+# Exclude pickles
+*.pkl
+
+# Exclude chromadb
+chroma_db/
