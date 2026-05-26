@@ -2,123 +2,176 @@
   "test_cases": [
     {
       "question": "What was the total revenue last month?",
-      "ground_truth": "A specific dollar amount from the order_items table for last month's completed orders",
+      "ground_truth": "Total completed-order revenue for last month. Use mart_order_summary.order_revenue with status = 'Complete' and order_created_at filtered by glossary time_periods.last_month. Fallback: orders joined to order_items using SUM(order_items.sale_price).",
       "category": "sql",
-      "expected_metrics": ["revenue"]
+      "expected_metrics": [
+        "revenue"
+      ]
     },
     {
       "question": "What is the ROI for email campaigns last month?",
-      "ground_truth": "ROI percentage calculated as (revenue - cost) / cost * 100 for email traffic source",
+      "ground_truth": "Product/order profitability ROI for completed orders attributed to Email traffic source last month, where ROI = SUM(gross_profit) * 100.0 / SUM(order_cost). Use mart_order_summary when available for revenue/cost/profit, and use events traffic_source = 'Email' only if order/session attribution exists. If no marketing cost/ad spend table exists, do not calculate marketing campaign ROI/ROAS; report calculability limitation.",
       "category": "sql",
-      "expected_metrics": ["ROI"]
+      "expected_metrics": [
+        "roi"
+      ],
+      "notes": "Glossary defines ROI as product/order profitability ROI, not paid-media ROI. ROAS/CAC are not directly calculable without spend data."
     },
     {
       "question": "How many new users did we acquire last month?",
-      "ground_truth": "Count of users whose first order was placed last month",
+      "ground_truth": "Count of new customers whose first completed order occurred last month. Use mart_user_segment.first_order_date if available, filtered by glossary time_periods.last_month. Fallback: derive MIN(orders.created_at) per user where status = 'Complete'.",
       "category": "sql",
-      "expected_metrics": ["new_users"]
+      "expected_metrics": [
+        "new_customers"
+      ]
     },
     {
       "question": "What is the churn rate for organic search users?",
-      "ground_truth": "Percentage of organic users who cancelled orders",
+      "ground_truth": "Churn rate for organic users: percentage of eligible users with at least one completed order before the evaluation date whose latest completed order is older than the default inactivity window, usually 90 days. Use mart_user_segment if it contains customer_segment/last_order_date/completed_order_count; fallback to orders. Apply organic traffic_source only if user/order attribution to events traffic_source = 'Organic' is available; otherwise state that organic-source churn is not directly attributable from orders alone.",
       "category": "sql",
-      "expected_metrics": ["churn_rate"]
+      "expected_metrics": [
+        "churn_rate"
+      ],
+      "notes": "Glossary churn_rate is inactivity-based, not cancelled-order percentage."
     },
     {
       "question": "Which product category has the highest AOV?",
-      "ground_truth": "Product category with highest average order value from order_items joined with products",
+      "ground_truth": "Product category with the highest completed-order AOV. Prefer mart_product_sales if it supports category-level revenue and order count; otherwise use mart_order_summary/order_items/products. AOV = SUM(order_revenue) * 1.0 / COUNT(DISTINCT order_id), grouped by products.category, with completed order filter status = 'Complete'.",
       "category": "sql",
-      "expected_metrics": ["AOV"]
+      "expected_metrics": [
+        "AOV"
+      ]
     },
     {
       "question": "What is the conversion rate by traffic source?",
-      "ground_truth": "Ratio of users who purchased vs users who visited, grouped by traffic_source",
+      "ground_truth": "Conversion rate by traffic source using events as the source: COUNT(DISTINCT converted_sessions) * 100.0 / COUNT(DISTINCT total_sessions), grouped by traffic_source. total_sessions = distinct events.session_id; converted_sessions = sessions with a purchase event or sessions mapped to a completed order. Fallback to orders only if event-to-order mapping exists.",
       "category": "sql",
-      "expected_metrics": ["conversion_rate"]
+      "expected_metrics": [
+        "conversion_rate"
+      ]
     },
     {
       "question": "What are the top 5 products by revenue last quarter?",
-      "ground_truth": "Top 5 products ranked by sum of sale_price in the last quarter",
+      "ground_truth": "Top 5 products by completed-order revenue in the last quarter. Prefer mart_product_sales if it has product revenue and date support; otherwise join orders, order_items, and products. Rank products by SUM(order_items.sale_price) for status = 'Complete' within the last quarter.",
       "category": "sql",
-      "expected_metrics": ["revenue"]
+      "expected_metrics": [
+        "revenue"
+      ]
     },
     {
       "question": "How many orders were returned last month?",
-      "ground_truth": "Count of orders with status = 'Returned' in last month",
+      "ground_truth": "Count of returned orders last month. Prefer mart_order_summary with status = 'Returned' or order_returned_at IS NOT NULL, filtered by order_created_at or order_returned_at according to the question intent. Fallback: orders.status = 'Returned' or returned_at IS NOT NULL.",
       "category": "sql",
-      "expected_metrics": ["returns"]
+      "expected_metrics": [
+        "return_rate",
+        "returned_orders"
+      ]
     },
     {
       "question": "What is the average delivery time for completed orders?",
-      "ground_truth": "Average days between order creation and delivery for status = 'Complete'",
+      "ground_truth": "Average delivery time for completed/delivered orders. Use mart_order_summary: AVG(julianday(order_delivered_at) - julianday(order_created_at)) where status = 'Complete' and order_delivered_at IS NOT NULL. Fallback: orders.created_at and orders.delivered_at.",
       "category": "sql",
-      "expected_metrics": ["delivery_time"]
+      "expected_metrics": [
+        "delivery_time"
+      ]
     },
     {
       "question": "What percentage of revenue comes from returning customers?",
-      "ground_truth": "Revenue from users with more than 1 order divided by total revenue",
+      "ground_truth": "Percentage of completed-order revenue from returning customers. returning_customers = users with more than one completed order. Numerator = completed-order revenue from returning customers; denominator = total completed-order revenue. Prefer mart_user_segment for completed_order_count/customer segment and mart_order_summary for order_revenue; fallback to orders + order_items.",
       "category": "sql",
-      "expected_metrics": ["revenue", "returning_customers"]
+      "expected_metrics": [
+        "revenue",
+        "returning_customers",
+        "repeat_purchase_rate"
+      ]
     },
     {
       "question": "What is the average ecommerce churn rate industry benchmark?",
-      "ground_truth": "Industry average ecommerce churn rate (typically 70-80% annual for subscription, lower for transactional)",
+      "ground_truth": "Industry benchmark answer for ecommerce churn rate, clearly separated from project SQL churn definition. Mention that glossary project churn_rate is inactivity-based: eligible customers whose latest completed order is older than the churn window, default 90 days.",
       "category": "rag",
-      "expected_metrics": ["churn_rate"]
+      "expected_metrics": [
+        "churn_rate"
+      ]
     },
     {
       "question": "What ROI should we expect from email marketing campaigns?",
-      "ground_truth": "Industry average email marketing ROI benchmark from reports",
+      "ground_truth": "Industry benchmark answer for email marketing ROI. Clearly distinguish external marketing ROI benchmarks from the project glossary ROI, which is product/order profitability ROI = SUM(gross_profit) * 100.0 / SUM(order_cost). If asked to calculate from project SQL, marketing ROI/ROAS requires spend data and is not directly calculable unless cost/spend data exists.",
       "category": "rag",
-      "expected_metrics": ["ROI"]
+      "expected_metrics": [
+        "roi",
+        "roas"
+      ]
     },
     {
       "question": "What are industry best practices for reducing cart abandonment?",
-      "ground_truth": "Best practices from industry reports including retargeting, email reminders, simplified checkout",
+      "ground_truth": "Industry best practices for reducing cart abandonment, such as retargeting, email reminders, simplified checkout, transparent shipping/return policy, guest checkout, and payment options. Connect to glossary cart_abandonment_rate when measurement is needed: add-to-cart sessions that did not complete purchase.",
       "category": "rag",
-      "expected_metrics": []
+      "expected_metrics": [
+        "cart_abandonment_rate"
+      ]
     },
     {
       "question": "What is a good conversion rate for fashion ecommerce?",
-      "ground_truth": "Fashion ecommerce conversion rate benchmarks from industry reports (typically 1-3%)",
+      "ground_truth": "Industry benchmark answer for fashion ecommerce conversion rate. Connect benchmark to glossary conversion_rate definition: completed purchase sessions divided by total sessions, grouped by relevant dimension if needed.",
       "category": "rag",
-      "expected_metrics": ["conversion_rate"]
+      "expected_metrics": [
+        "conversion_rate"
+      ]
     },
     {
       "question": "How do top ecommerce companies reduce customer acquisition cost?",
-      "ground_truth": "Strategies from industry reports: referral programs, organic content, loyalty programs",
+      "ground_truth": "Industry strategies for reducing customer acquisition cost, such as referral programs, organic content/SEO, lifecycle retention, loyalty programs, audience targeting, and conversion optimization. Note that glossary CAC is not directly calculable in the project database unless marketing spend/acquisition cost data exists.",
       "category": "rag",
-      "expected_metrics": []
+      "expected_metrics": [
+        "cac"
+      ]
     },
     {
       "question": "What is the average AOV for fashion ecommerce globally?",
-      "ground_truth": "Global fashion ecommerce AOV benchmarks from industry reports",
+      "ground_truth": "Industry benchmark answer for global fashion ecommerce AOV. Connect benchmark to glossary AOV definition: average completed order revenue = SUM(order_revenue) / COUNT(DISTINCT order_id).",
       "category": "rag",
-      "expected_metrics": ["AOV"]
+      "expected_metrics": [
+        "aov"
+      ]
     },
     {
       "question": "What are common causes of high churn in ecommerce?",
-      "ground_truth": "Poor delivery experience, lack of personalisation, pricing, competitor offers per industry reports",
+      "ground_truth": "Industry explanation of common ecommerce churn drivers, such as poor delivery experience, weak product-market fit, pricing, lack of personalization, competitor offers, low loyalty value, and poor post-purchase experience. Connect to glossary churn_rate as inactivity-based customer churn.",
       "category": "rag",
-      "expected_metrics": ["churn_rate"]
+      "expected_metrics": [
+        "churn_rate"
+      ]
     },
     {
       "question": "How does mobile vs desktop conversion rate compare in fashion retail?",
-      "ground_truth": "Mobile vs desktop conversion benchmarks from industry reports",
+      "ground_truth": "Industry benchmark comparison of mobile vs desktop conversion rate in fashion retail. Connect to glossary conversion_rate definition and note that device-level comparison requires device/platform field in events or a traffic funnel mart; otherwise not directly calculable from current glossary sources.",
       "category": "rag",
-      "expected_metrics": ["conversion_rate"]
+      "expected_metrics": [
+        "conversion_rate"
+      ]
     },
     {
       "question": "What loyalty program structures drive the highest retention?",
-      "ground_truth": "Loyalty program best practices from industry reports: tiered systems, points, early access",
+      "ground_truth": "Industry best practices for loyalty program structures that improve retention, such as tiered rewards, points, early access, personalized offers, referrals, and experiential benefits. Connect to glossary retention_rate/repeat_purchase_rate for measurement.",
       "category": "rag",
-      "expected_metrics": []
+      "expected_metrics": [
+        "retention_rate",
+        "repeat_purchase_rate"
+      ]
     },
     {
       "question": "What is the typical return rate for fashion ecommerce?",
-      "ground_truth": "Fashion ecommerce return rate benchmarks (typically 20-30%) from industry reports",
+      "ground_truth": "Industry benchmark answer for fashion ecommerce return rate. Connect to glossary return_rate definition: returned orders divided by total orders, using status = 'Returned' or returned_at/order_returned_at IS NOT NULL.",
       "category": "rag",
-      "expected_metrics": ["returns"]
+      "expected_metrics": [
+        "return_rate"
+      ]
     }
-  ]
+  ],
+  "metadata": {
+    "updated_based_on": "glossary.json",
+    "sql_dialect": "SQLite",
+    "design_principle": "mart/view-first semantic layer; use base tables only when no suitable mart/view exists.",
+    "note": "Ground truth descriptions are aligned to glossary metric definitions, preferred sources, status filters, and calculability notes."
+  }
 }
