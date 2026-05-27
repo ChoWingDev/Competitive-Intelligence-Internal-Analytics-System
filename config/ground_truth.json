@@ -63,7 +63,6 @@
       "ground_truth": "Count of returned orders last month. Prefer mart_order_summary with status = 'Returned' or order_returned_at IS NOT NULL, filtered by order_created_at or order_returned_at according to the question intent. Fallback: orders.status = 'Returned' or returned_at IS NOT NULL.",
       "category": "sql",
       "expected_metrics": [
-        "return_rate",
         "returned_orders"
       ]
     },

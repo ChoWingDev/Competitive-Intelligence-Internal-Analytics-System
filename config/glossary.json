@@ -831,7 +831,113 @@
         "detractors = score 0-6"
       ],
       "calculability_status": "not_directly_calculable"
-    }
+    },
+    "revenue": {
+  "business_name": "Revenue",
+  "definition": "Total sales revenue generated from order items.",
+  "grain": "order-item-level",
+  "source_layer": "mart_preferred_with_table_fallback",
+  "preferred_source": "mart_order_summary",
+  "preferred_source_type": "view",
+  "preferred_source_fields": ["order_id", "order_revenue"],
+  "fallback_sources": ["order_items"],
+  "fallback_fields": {
+    "order_items": ["order_id", "sale_price"]
+  },
+  "sql_formula": "SUM(order_revenue)",
+  "fallback_sql_formula": "SUM(sale_price)",
+  "business_logic": [
+    "Revenue is calculated from sale_price at order item level",
+    "Use mart_order_summary.order_revenue when available",
+    "Fallback to SUM(order_items.sale_price) if mart_order_summary is unavailable"
+  ],
+  "calculability_status": "calculable"
+},
+
+"new_customers": {
+  "business_name": "New Customers",
+  "definition": "Number of customers classified as new customers based on customer segment logic.",
+  "grain": "user-level",
+  "source_layer": "mart_preferred_with_table_fallback",
+  "preferred_source": "mart_user_segment",
+  "preferred_source_type": "view",
+  "preferred_source_fields": ["user_id", "customer_segment", "first_order_date"],
+  "fallback_sources": ["orders"],
+  "fallback_fields": {
+    "orders": ["user_id", "order_id", "status", "created_at"]
+  },
+  "sql_formula": "COUNT(DISTINCT user_id)",
+  "business_logic": [
+    "Use mart_user_segment where customer_segment = 'New Customers'",
+    "Fallback logic: users whose first completed order date falls within the new customer window",
+    "completed order filter: status = 'Complete'"
+  ],
+  "calculability_status": "calculable"
+},
+
+"returned_orders": {
+  "business_name": "Returned Orders",
+  "definition": "Number of orders that were returned.",
+  "grain": "order-level",
+  "source_layer": "mart_preferred_with_table_fallback",
+  "preferred_source": "mart_order_summary",
+  "preferred_source_type": "view",
+  "preferred_source_fields": ["order_id", "status", "order_returned_at"],
+  "fallback_sources": ["orders"],
+  "fallback_fields": {
+    "orders": ["order_id", "status", "returned_at"]
+  },
+  "sql_formula": "COUNT(DISTINCT order_id)",
+  "business_logic": [
+    "Returned orders are identified where order_returned_at IS NOT NULL",
+    "Fallback logic: returned_at IS NOT NULL from orders",
+    "Status can be used as secondary validation if status = 'Returned'"
+  ],
+  "calculability_status": "calculable"
+},
+
+"delivery_time": {
+  "business_name": "Delivery Time",
+  "definition": "Average number of days between order creation and order delivery.",
+  "grain": "order-level",
+  "source_layer": "mart_preferred_with_table_fallback",
+  "preferred_source": "mart_order_summary",
+  "preferred_source_type": "view",
+  "preferred_source_fields": ["order_id", "order_created_at", "order_delivered_at"],
+  "fallback_sources": ["orders"],
+  "fallback_fields": {
+    "orders": ["order_id", "created_at", "delivered_at"]
+  },
+  "sql_formula": "AVG(julianday(order_delivered_at) - julianday(order_created_at))",
+  "fallback_sql_formula": "AVG(julianday(delivered_at) - julianday(created_at))",
+  "business_logic": [
+    "Only include delivered orders where delivered_at is not null",
+    "Delivery time is measured in days from order creation to delivery",
+    "Exclude cancelled or undelivered orders from delivery time calculation"
+  ],
+  "calculability_status": "calculable"
+},
+
+"returning_customers": {
+  "business_name": "Returning Customers",
+  "definition": "Number of customers who have more than one completed order.",
+  "grain": "user-level",
+  "source_layer": "mart_preferred_with_table_fallback",
+  "preferred_source": "mart_user_segment",
+  "preferred_source_type": "view",
+  "preferred_source_fields": ["user_id", "customer_segment", "completed_order_count"],
+  "fallback_sources": ["orders"],
+  "fallback_fields": {
+    "orders": ["user_id", "order_id", "status", "created_at"]
+  },
+  "sql_formula": "COUNT(DISTINCT user_id)",
+  "business_logic": [
+    "Use mart_user_segment where completed_order_count > 1",
+    "Fallback logic: users with COUNT(DISTINCT completed order_id) > 1",
+    "completed order filter: status = 'Complete'"
+  ],
+  "calculability_status": "calculable"
+  }
   },
   "time_periods": {
     "today": "DATE({date_field}) = DATE('now')",
